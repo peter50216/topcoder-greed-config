@@ -7,22 +7,22 @@
     - When in *n*x operating systems, it runs each test case in a separate,
       forked process. A runtime error in a test case won't halt execution of
       later test cases. Globals don't need to  be initialized manually.
-      
+
          This feature uses a /tmp/topcoder_vx_tester_communicate file to share
          info between processes. You can change the path if needed by modifying
          the constant below.
-         
-    - Can temporarily disable test cases. 
+
+    - Can temporarily disable test cases.
     - Three verbosity modes:
        * FULL_REPORT : First runs all test cases with verbose output. Then shows
                        a brief report with most relevant info.
        * NO_REPORT   : If you don't need the report, it is replaced by a single
                        line of colored result characters and score.
        * ONLY_REPORT : Shows only the mentioned report.
-    
-    Everything is about the huge runTests function, read its documentation.  
-    
-    (c) 2013 Victor Hugo Soliz Kuncar, ZLIB/LibPNG license 
+
+    Everything is about the huge runTests function, read its documentation.
+
+    (c) 2013 Victor Hugo Soliz Kuncar, ZLIB/LibPNG license
 *
 */
 
@@ -45,11 +45,11 @@ namespace Tester {
 const int    FULL_REPORT    = 0;
 const int    COMPACT_REPORT = 1;
 const int    ONLY_REPORT    = 2;
-    
+
 // Name the color codes:
 #ifdef DISABLE_COLORS
-    const string COLOR_RESET  = "";    
-    
+    const string COLOR_RESET  = "";
+
     const string BRIGHT_GREEN   = "";
     const string BRIGHT_RED     = "";
     const string NORMAL_CROSSED = "";
@@ -57,8 +57,8 @@ const int    ONLY_REPORT    = 2;
     const string NORMAL_FAINT   = "";
     const string BRIGHT_CYAN    = "";
 #else
-    const string COLOR_RESET  = "\033[0m";    
-    
+    const string COLOR_RESET  = "\033[0m";
+
     const string BRIGHT_GREEN   = "\033[1;32m";
     const string BRIGHT_RED     = "\033[1;31m";
     const string NORMAL_CROSSED = "\033[0;9;37m";
@@ -75,7 +75,7 @@ const string BAR_COLOR    = NORMAL_FAINT;  //The bar ==== color
 const string TEST_COLOR   = BRIGHT_CYAN; //Color for the word "Test" or "T"
 
 const string GRADE_COLOR[] = {
-    RED_BACKGROUND, // bad (overall), 
+    RED_BACKGROUND, // bad (overall),
     BRIGHT_RED,   // bad (case),
     COLOR_RESET,  // neutral
     BRIGHT_GREEN  // good
@@ -95,7 +95,7 @@ const map<char, string> RESULT_COLOR = {
    unknown result */
 template<typename T> struct output {
     T value; bool u=false;
-    
+
     output(T value) { this->value = value; }
     output() { u = true; }
 };
@@ -132,7 +132,7 @@ template <typename T> string pretty(vector<T> t)
 
 /*==============================================================================
   Prints a test case's argument list
-  
+
   printArgs(a,b,c) ->  cout << "[" << pretty(a) <<","<< pretty(b) <<"," <<  pretty(c) <<"]"
 */
 void printArgsCont() {}
@@ -151,9 +151,9 @@ template<typename T, typename... Args> void printArgs(T value, Args... args)
 }
 
 /*==============================================================================
- tc_eq compares two values using TopCoder's rules. Mostly to allow floating 
+ tc_eq compares two values using TopCoder's rules. Mostly to allow floating
  point comparison using absolute/relative error
-    
+
 */
 bool tc_eq(const double &a, const double &b)
 {
@@ -178,7 +178,7 @@ template<typename T> bool tc_eq(const vector<T> &a, const vector<T> &b)
 
 /*==============================================================================
    Add color to a string according to grade q. -2 is worst, 1 is good.
-*/   
+*/
 string colorString(string s, int q)
 {
     return GRADE_COLOR[q+2] + s + COLOR_RESET;
@@ -218,7 +218,7 @@ string caseNum(int i, int n) {
 template<typename T> string getTypeName()
 {
     string s = typeid(T).name();
-    int i= 0; 
+    int i= 0;
     while ( (i < s.size()) && ('0' <= s[i] && s[i] <= '9') ) {
         i++;
     }
@@ -236,9 +236,9 @@ int noColorLength(const string &x)
         } else if (colorCode && ch == 'm') {
             colorCode = false;
         } else {
-            len += ! colorCode; 
+            len += ! colorCode;
         }
-        
+
     }
     return len;
 }
@@ -286,9 +286,9 @@ int noColorLength(const string &x)
         }
         return comm;
     }
-    
+
     void writeCommunication(string comm)
-    {        
+    {
         ofstream f(COMMUNICATION_FILE);
         f << comm;
         f.close();
@@ -297,28 +297,28 @@ int noColorLength(const string &x)
 
 /** =============================================================================
     runTestCase tests a single case.
-    
+
     Template arguments:
     @arg input       : The class that stores input.
     @arg output      : The class that stores output.
     @arg problemClass: The class name for the problem.
-    
+
     Normal arguments:
     @arg caseNo    : The test case's index
     @arg in        : The test case's input
     @arg exp       : The test case's expected output
     @arg n         : The number of testcases
     @arg timeOut   : The maximum time available for the test case.
-    
+
     Output arguments:
-    @arg finalLines: Vector that countains the results card that is shown at the 
+    @arg finalLines: Vector that countains the results card that is shown at the
                      end of tests.
-    
+
     The return is one of:
     + : Correct.
     X : Wrong answer.
     T : Correct but time exceeded T
-    ? : Executed correctly, there is no expected output so we can't know if it 
+    ? : Executed correctly, there is no expected output so we can't know if it
         is correct
 
 */
@@ -340,18 +340,18 @@ char runTestCase(int caseNo, input in, output exp, int n, double timeOut, string
             in.print();
             cout << endl;
         }
-        time_t s = clock();    
+        time_t s = clock();
         problemClass* instance = new problemClass();
         output res = output( in.run(instance) );
         double elapsed = (double)(clock() - s) / CLOCKS_PER_SEC;
         delete instance;
-        
+
         if (! silentMode) {
             cout << "Time: "<< f02(elapsed)<<" seconds." << endl;
         }
-    
+
         bool correct = exp.u || tc_eq(exp.value, res.value);
-    
+
         if (! silentMode) {
             if (! correct) {
                 cout << "Desired answer:" << endl;
@@ -360,7 +360,7 @@ char runTestCase(int caseNo, input in, output exp, int n, double timeOut, string
             cout << "Your answer:" << endl;
             cout << "\t" << pretty(res.value) << endl;
         }
-    
+
         ret = '-';
         if (! correct) {
             ret = 'X';
@@ -421,12 +421,12 @@ char runTestCase(int caseNo, input in, output exp, int n, double timeOut, string
 
 /** =============================================================================
     runTests tests a sequence of test cases, outputs results.
-    
+
     Template arguments:
     @arg problemClass: The class name for the problem.
     @arg input       : The class that stores input.
     @arg output      : The class that stores output.
-    
+
     Normal arguments:
     @arg testCases   : A vector of test cases, a test case is a (input,output) pair.
     @arg disabled    : A function takes integer returns boolean. If disabled(i) then
@@ -440,14 +440,14 @@ char runTestCase(int caseNo, input in, output exp, int n, double timeOut, string
     The return is a program exit code.
 
 */
-template<typename problemClass, typename input, typename output> 
+template<typename problemClass, typename input, typename output>
 int runTests(vector<pair<input,output>> testCases, function<bool(int)> disabled, int score, int openTime, double caseTimeOut, int compactLevel)
 {
     string header = getTypeName<problemClass>() + ( (compactLevel != 1)  ? "\n\n" : ": ");
     if (compactLevel == 2) {
         cout << header; cout.flush();
     }
-    
+
     string result;
     vector<string> finalLines;
     int n = testCases.size();
